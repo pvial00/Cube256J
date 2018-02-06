@@ -7,6 +7,6 @@ cube.encrypt(data, key, nonce);
 cube.decrypt(data, key, nonce);  
 
 # Script usage:
-cubecrypt <encrypt/decrypt> <input file> <output file> <password>
+cubecrypt <encrypt/decrypt> <inputfile> <outputfile> <password>
 
 
