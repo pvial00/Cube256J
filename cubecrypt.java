@@ -28,7 +28,6 @@ public class cubecrypt extends Cube {
 	      byte[] msg = new byte[(int)(data.length -1)];
               SecureRandom sr = new SecureRandom();
 	      sr.nextBytes(nonce);
-	      System.out.println(nonce.length);
 	      msg = Arrays.copyOfRange(data, 0, (data.length - 1));
               ctxt = cube.encrypt(msg, key, nonce);
 	      fo.write(nonce);
