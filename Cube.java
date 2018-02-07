@@ -99,7 +99,9 @@ public class Cube {
    public byte[] encrypt(byte[] data, byte[] key, byte[] nonce) {
        this.gen_cube(this.size_factor, this.size_factor, this.alphabet_size);
        this.key_cube(key);
-       this.key_cube(nonce);
+       if (nonce != null) {
+           this.key_cube(nonce);
+       }
        int sub, sub_pos, shift;
        byte[] sub_key = new byte[key.length];
        sub_key = key;
@@ -126,7 +128,9 @@ public class Cube {
    public byte[] decrypt(byte[] data, byte[] key, byte[] nonce) {
        this.gen_cube(this.size_factor, this.size_factor, this.alphabet_size);
        this.key_cube(key);
-       this.key_cube(nonce);
+       if (nonce != null) {
+           this.key_cube(nonce);
+       }
        int sub, shift;
        byte[] sub_key = new byte[key.length];
        sub_key = key;
@@ -149,3 +153,4 @@ public class Cube {
        return data;
     }
 }
+

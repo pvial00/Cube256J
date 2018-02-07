@@ -9,4 +9,3 @@ cube.decrypt(data, key, nonce);
 # Script usage:
 cubecrypt <encrypt/decrypt> <inputfile> <outputfile> <password>
 
-
