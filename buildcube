@@ -1,0 +1,4 @@
+javac Cube.java
+javac CubeSum.java
+javac CubeKDF.java
+javac cubecrypt.java
