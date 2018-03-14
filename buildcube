@@ -1,4 +1,5 @@
 javac Cube.java
 javac CubeSum.java
 javac CubeKDF.java
+javac CubeFile.java
 javac cubecrypt.java
