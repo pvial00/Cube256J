@@ -6,6 +6,20 @@ public class Cube {
    public int size_factor = 3;
    public int alphabet_size = 256;
    public ArrayList<ArrayList<ArrayList<Integer>>> state = new ArrayList<ArrayList<ArrayList<Integer>>>();
+   public void printstate(ArrayList<ArrayList<ArrayList<Integer>>> state) {
+      System.out.println(state.size());
+      for (int z = 0; z < state.size(); z++) {
+          System.out.println("Section");
+          for (int y = 0; y < state.get(z).size(); y++) {
+              System.out.println("Alphabet");
+              for (int x = 0; x < state.get(z).get(y).size(); x++) {
+                  System.out.print(state.get(z).get(y).get(x));
+                  System.out.print(" ");
+              }
+          }
+          System.out.println(" ");
+      }
+   }
    public void gen_cube(int depth, int width, int length) {
       for (int z = 0; z < depth; z++) {
           ArrayList<ArrayList<Integer>> section = new ArrayList<ArrayList<Integer>>();
@@ -27,6 +41,7 @@ public class Cube {
 	  }
 	  this.state.add(section);
       }
+      //printstate(this.state);
   }
   public void key_cube(byte[] key) {
      int key_sub;
@@ -36,9 +51,9 @@ public class Cube {
         for (int i = 0; i < key.length; i++) {
 	    for (int x = 0; x < this.state.get(z).size(); x++) {
 	        key_sub = this.state.get(z).get(x).get(((int)key[i] & 0xff));
-		this.state.get(z).get(x).remove((int)key[i] & 0xff);
+		this.state.get(z).get(x).remove(((int)key[i] & 0xff));
 		this.state.get(z).get(x).add(key_sub);
-		for (int y = 0; y < (int)key[i]; y++) {
+		for (int y = 0; y < ((int)key[i] & 0xff); y++) {
                     if (y % 2 == 0) {
                         shuffle = this.state.get(z).get(x).get(0);
                         this.state.get(z).get(x).remove(0);
@@ -52,10 +67,11 @@ public class Cube {
         }
     }
 
-    ArrayList<ArrayList<Integer>> section;
+    //ArrayList<ArrayList<Integer>> section;
     for (int i = 0; i < key.length; i++) {
-       sized_pos = (int)key[i] % size_factor;
-       for (int y = 0; y < (int)key[i]; y++) {
+       sized_pos = ((int)key[i] & 0xff) % size_factor;
+       for (int y = 0; y < ((int)key[i] & 0xff); y++) {
+          ArrayList<ArrayList<Integer>> section = new ArrayList<ArrayList<Integer>>();
           section = this.state.get(sized_pos);
 	  this.state.remove(sized_pos);
 	  this.state.add(section);
@@ -69,8 +85,8 @@ public class Cube {
        byte[] sub_key = new byte[key.length];
        for (int i = 0; i < key.length; i++) {
            sized_pos = ((int)key[i] & 0xff) % size_factor;
-	   sub = this.state.get(sized_pos).get(sized_pos).get((int)key[i] & 0xff);
-	   this.state.get(sized_pos).get(sized_pos).remove((int)key[i] & 0xff);
+	   sub = this.state.get(sized_pos).get(sized_pos).get(((int)key[i] & 0xff));
+	   this.state.get(sized_pos).get(sized_pos).remove(((int)key[i] & 0xff));
 	   this.state.get(sized_pos).get(sized_pos).add(sub);
 	   sub_key[i] = (byte)sub;
        }
@@ -80,20 +96,21 @@ public class Cube {
    public void morph_cube (int counter, byte[] k) {
        int shift;
        int ke = 0;
-       ArrayList<ArrayList<Integer>> section_shift;
-       int mod_value = counter % alphabet_size;
+       //ArrayList<ArrayList<Integer>> section_shift = new ArrayList<ArrayList<Interger>>;
        for (int z = 0; z < this.state.size(); z++) {
           for (int i = 0; i < k.length; i++) {
              for (int y = 0; y < this.state.get(z).size(); y++) {
-		 Collections.swap(this.state.get(z).get(y), mod_value, ((int)k[i] & 0xff));
+		 Collections.swap(this.state.get(z).get(y), counter, ((int)k[i] & 0xff));
                  ke = (int)k[i] & 0xff;
              }
 	  }
+	  ArrayList<ArrayList<Integer>> section_shift = new ArrayList<ArrayList<Integer>>();
 	  shift = ke % this.size_factor;
 	  section_shift = this.state.get(shift);
 	  this.state.remove(shift);
 	  this.state.add(section_shift);
        }
+       //printstate(this.state);
    }
    
    public byte[] encrypt(byte[] data, byte[] key, byte[] nonce) {
@@ -120,7 +137,7 @@ public class Cube {
 	  sub_key = this.key_scheduler(sub_key);
 	  this.morph_cube(ctr, sub_key);
 	  data[ctr] = (byte)sub;
-	  ctr += 1;
+	  ctr  = (ctr + 1) % this.alphabet_size;
        }
        return data;
     }
@@ -148,7 +165,7 @@ public class Cube {
 	  sub_key = this.key_scheduler(sub_key);
 	  this.morph_cube(ctr, sub_key);
 	  data[ctr] = (byte)sub;
-	  ctr += 1;
+	  ctr  = (ctr + 1) % this.alphabet_size;
        }
        return data;
     }

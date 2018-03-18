@@ -6,6 +6,20 @@ public class CubeFile {
    public int size_factor = 3;
    public int alphabet_size = 256;
    public ArrayList<ArrayList<ArrayList<Integer>>> state = new ArrayList<ArrayList<ArrayList<Integer>>>();
+   public void printstate(ArrayList<ArrayList<ArrayList<Integer>>> state) {
+      for (int z = 0; z < 3; z++) {
+          System.out.println("Section");
+          for (int y = 0; y < 3; y++) {
+              System.out.println("Alphabet");
+              for (int x = 0; x < 256; x++) {
+                  System.out.print(state.get(z).get(y).get(x));
+                  System.out.print(" ");
+              }
+          }
+          System.out.println(" ");
+      }
+   }
+
    public void gen_cube(int depth, int width, int length) {
       for (int z = 0; z < depth; z++) {
           ArrayList<ArrayList<Integer>> section = new ArrayList<ArrayList<Integer>>();
@@ -36,9 +50,9 @@ public class CubeFile {
         for (int i = 0; i < key.length; i++) {
 	    for (int x = 0; x < this.state.get(z).size(); x++) {
 	        key_sub = this.state.get(z).get(x).get(((int)key[i] & 0xff));
-		this.state.get(z).get(x).remove((int)key[i] & 0xff);
+		this.state.get(z).get(x).remove(((int)key[i] & 0xff));
 		this.state.get(z).get(x).add(key_sub);
-		for (int y = 0; y < (int)key[i]; y++) {
+		for (int y = 0; y < ((int)key[i] & 0xff); y++) {
                     if (y % 2 == 0) {
                         shuffle = this.state.get(z).get(x).get(0);
                         this.state.get(z).get(x).remove(0);
@@ -54,8 +68,8 @@ public class CubeFile {
 
     ArrayList<ArrayList<Integer>> section;
     for (int i = 0; i < key.length; i++) {
-       sized_pos = (int)key[i] % size_factor;
-       for (int y = 0; y < (int)key[i]; y++) {
+       sized_pos = ((int)key[i] & 0xff) % size_factor;
+       for (int y = 0; y < ((int)key[i] & 0xff); y++) {
           section = this.state.get(sized_pos);
 	  this.state.remove(sized_pos);
 	  this.state.add(section);
@@ -69,8 +83,8 @@ public class CubeFile {
        byte[] sub_key = new byte[key.length];
        for (int i = 0; i < key.length; i++) {
            sized_pos = ((int)key[i] & 0xff) % size_factor;
-	   sub = this.state.get(sized_pos).get(sized_pos).get((int)key[i] & 0xff);
-	   this.state.get(sized_pos).get(sized_pos).remove((int)key[i] & 0xff);
+	   sub = this.state.get(sized_pos).get(sized_pos).get(((int)key[i] & 0xff));
+	   this.state.get(sized_pos).get(sized_pos).remove(((int)key[i] & 0xff));
 	   this.state.get(sized_pos).get(sized_pos).add(sub);
 	   sub_key[i] = (byte)sub;
        }
@@ -106,11 +120,12 @@ public class CubeFile {
 	   outfile.write(nonce);
            this.gen_cube(this.size_factor, this.size_factor, this.alphabet_size);
            this.key_cube(key);
-           if (nonce != null) {
+           if (nonce.length != 0) {
                this.key_cube(nonce);
            }
            int sub, sub_pos, shift;
            byte[] sub_key = new byte[key.length];
+	   sub_key = key;
            int ctr = 0;
            int extra = 0;
            int blocks = 0;
@@ -120,13 +135,13 @@ public class CubeFile {
 	      buffersize = fsize;
 	      extra = fsize;
            }
-	   else {
+	   else if(fsize > perflimit) {
                blocks = (fsize / buffersize);
 	       if ((fsize % buffersize) != 0) {
 	           extra = fsize % buffersize;
 	           blocks++;
 	       }
-           }/*
+           }
 	   else if(fsize <= perflimit) {
                blocks = fsize / perflimit;
 	       if ((fsize % perflimit) != 0) {
@@ -134,7 +149,7 @@ public class CubeFile {
 		   blocks++;
 		   buffersize = perflimit;
 	       }
-	   }*/
+	   }
 	   int bc = 0;
            for (int b = 0; b < blocks; b++) {
 	       if (b == (blocks - 1)) {
@@ -158,7 +173,7 @@ public class CubeFile {
 	          sub_key = this.key_scheduler(sub_key);
 	          this.morph_cube(ctr, sub_key);
 	          ctxt[bc] = (byte)sub;
-	          ctr += 1;
+	          ctr = (ctr + 1) % this.alphabet_size;
 		  bc++;
                }
 	       outfile.write(ctxt);
@@ -184,11 +199,12 @@ public class CubeFile {
            int blocks = 0;
            this.gen_cube(this.size_factor, this.size_factor, this.alphabet_size);
            this.key_cube(key);
-           if (nonce != null) {
+           if (nonce.length != 0) {
                this.key_cube(nonce);
            }
            int sub, shift;
            byte[] sub_key = new byte[key.length];
+	   sub_key = key;
            int ctr = 0;
 	   int bc = 0;
            if (fsize <= buffersize) {
@@ -225,7 +241,7 @@ public class CubeFile {
 	          sub_key = this.key_scheduler(sub_key);
 	          this.morph_cube(ctr, sub_key);
 		  ptxt[bc] = (byte)sub;
-	          ctr += 1;
+	          ctr = (ctr + 1) % this.alphabet_size;
 		  bc += 1;
                }
 	       outfile.write(ptxt);
